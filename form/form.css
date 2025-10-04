@@ -59,70 +59,67 @@ form button {
     * 自定义radio单选按扭
 **/
 .radio-group {
-    display: flex;
-    justify-content: flex-start; /* 将子元素靠左对齐 */
-    align-items: center;      /* 在垂直方向上居中对齐 */
-    gap: 10px;                /* 设置子元素之间的间距 */    
-    }
-
-.radio-group label{
-    margin-bottom: 10px;
-    height: 30px;
-    line-height: 30px;
-    font-size: 16px;
-    color: #555555;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        line-height: 1;          /* 设置子元素之间的间距 */    
     }
 
 input[type="radio"] {
-    position: relative;
-    display: inline-block;
-    width: 20px !important;
-    height: 20px !important;
-    border: 1px solid  var(--border-color);
-    border-radius: 20px;
-    vertical-align: text-top;
-    outline: none;
-    cursor: pointer;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    -webkit-border-radius: 20px;
-    -moz-border-radius: 20px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 50%;
+  vertical-align: middle; /* 关键：与文字基线对齐 */
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0; /* 防止被压缩 */
+  box-sizing: border-box;
 }
 
 input[type="radio"]:after {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    display: block;
-    width: 12px;
-    height: 12px;
-    background: #0798ff;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -webkit-transform: scale(0);
-    -moz-transform: scale(0);
-    transform: scale(0);
-    -webkit-transition: all ease-in-out 200ms;
-    -moz-transition: all ease-in-out 200ms;
-    transition: all ease-in-out 200ms;
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background: #0798ff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
 }
 
 input[type="radio"]:checked {
-    border-color: #0798ff;
+  border-color: #0798ff;
 }
 
 input[type="radio"]:checked:after {
-    -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    transform: scale(1);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
+
+/* label 样式 */
+.radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1.5; /* 可调，建议 1.4 - 1.6 */
+}
 
 .btn-submit {
     float: right;

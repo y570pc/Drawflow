@@ -8,42 +8,61 @@ const dynamicNodeForm = document.getElementById('dynamicNodeForm');
 let currentNodeId = null;
 
 // 监听 Drawflow 节点的双击事件
-editor.on('contextmenu', function(id) {
+// editor.on('contextmenu', function(id) {
 
     
-    formModal.style.display = 'flex';
+//     formModal.style.display = 'flex';
     
     
-    // 阻止浏览器默认的右键菜单
-    event.preventDefault();
+//     // 阻止浏览器默认的右键菜单
+//     event.preventDefault();
 
-    // 查找事件源是否为 Drawflow 节点
-    const targetNode = event.target.closest('.drawflow-node');
+//     // 查找事件源是否为 Drawflow 节点
+//     const targetNode = event.target.closest('.drawflow-node');
     
-    if (targetNode) {
-        // 获取节点的 ID
-        const nodeId = targetNode.getAttribute('id').substring(5);
-        currentNodeId = nodeId;
-        console.log('右击了节点，ID为:', nodeId);
+//     if (targetNode) {
+//         // 获取节点的 ID
+//         const nodeId = targetNode.getAttribute('id').substring(5);
+//         currentNodeId = nodeId;
+//         console.log('右击了节点，ID为:', nodeId);
         
-        // 获取节点数据并填充表单
-        const nodeData = editor.getNodeFromId(nodeId);
-        const formData = nodeData.data ||[];
-        // 动态生成表单
-        let formHtml = '';
-        if (Array.isArray(formData)) {
-            formData.forEach(field => {
-                formHtml += createFormElement(field);
-            });
-        }
-        dynamicNodeForm.innerHTML = formHtml;
+//         // 获取节点数据并填充表单
+//         const nodeData = editor.getNodeFromId(nodeId);
+//         const formData = nodeData.data ||[];
+//         // 动态生成表单
+//         let formHtml = '';
+//         if (Array.isArray(formData)) {
+//             formData.forEach(field => {
+//                 formHtml += createFormElement(field);
+//             });
+//         }
+//         dynamicNodeForm.innerHTML = formHtml;
         
-        // 显示弹框
-        formModal.style.display = 'flex';
+//         // 显示弹框
+//         formModal.style.display = 'flex';
+//     }
+// });
+
+function createForm(nodeId) {
+
+    // 获取节点数据并填充表单
+    const nodeData = editor.getNodeFromId(nodeId);
+    const formData = nodeData.data ||[];
+    // 动态生成表单
+    let formHtml = '';
+    if (Array.isArray(formData)) {
+        formData.forEach(field => {
+            formHtml += createFormElement(field);
+        });
     }
+    dynamicNodeForm.innerHTML = formHtml;
+    
+    // 显示弹框
+    formModal.style.display = 'flex';
 
 
-});
+}
+
 
 
 
@@ -111,6 +130,9 @@ closeButton.addEventListener('click', function() {
 
 // 动态表单
 function createFormElement(field) {
+
+
+    
     let element = '';
     // 创建 Label
     const label = `<label for="${field.key}">${field.name}:</label>`;

@@ -1,0 +1,140 @@
+{
+  "groups": [
+    {
+      "name": "社交媒体",
+      "icon": "fab fa-comment-dots",
+      "open": true,
+      "nodes": [
+        {
+          "data-node": "facebook",
+          "label": "Facebook Message",
+          "icon": "fab fa-facebook",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-facebook\"></i> Facebook Message</div></div>",
+          "inputs": 0,
+          "outputs": 1,
+          "data": {}
+        },
+        {
+          "data-node": "slack",
+          "label": "Slack receive message",
+          "icon": "fab fa-slack",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-slack\"></i> Slack chat message</div></div>",
+          "inputs": 1,
+          "outputs": 0,
+          "data": {}
+        },
+        {
+          "data-node": "telegram",
+          "label": "Telegram send message",
+          "icon": "fab fa-telegram-plane",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-telegram-plane\"></i> Telegram bot</div><div class=\"box\"><p>Send to telegram</p><p>select channel</p><select df-channel><option value=\"channel_1\">Channel 1</option><option value=\"channel_2\">Channel 2</option><option value=\"channel_3\">Channel 3</option><option value=\"channel_4\">Channel 4</option></select></div></div>",
+          "inputs": 1,
+          "outputs": 0,
+          "data": { "channel": "channel_3" }
+        }
+      ]
+    },
+    {
+      "name": "云服务",
+      "icon": "fas fa-cloud",
+      "open": false,
+      "nodes": [
+        {
+          "data-node": "aws",
+          "label": "AWS",
+          "icon": "fab fa-aws",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-aws\"></i> Aws Save </div><div class=\"box\"><p>Save in aws</p><input type=\"text\" df-db-dbname placeholder=\"DB name\"><br><br><input type=\"text\" df-db-key placeholder=\"DB key\"><p>Output Log</p></div></div>",
+          "inputs": 1,
+          "outputs": 1,
+          "data": { "db": { "dbname": "", "key": "" } }
+        },
+        {
+          "data-node": "google",
+          "label": "Google Drive save",
+          "icon": "fab fa-google-drive",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-google-drive\"></i> Google Drive save </div></div>",
+          "inputs": 1,
+          "outputs": 0,
+          "data": {}
+        },
+        {
+          "data-node": "email",
+          "label": "Email send",
+          "icon": "fas fa-at",
+          "html": "<div><div class=\"title-box\"><i class=\"fas fa-at\"></i> Send Email </div></div>",
+          "inputs": 1,
+          "outputs": 0,
+          "data": {}
+        }
+      ]
+    },
+    {
+      "name": "开发工具",
+      "icon": "fas fa-cogs",
+      "open": false,
+      "nodes": [
+        {
+          "data-node": "github",
+          "label": "Github Star",
+          "icon": "fab fa-github",
+          "html": "<div><div class=\"title-box\"><i class=\"fab fa-github \"></i> Github Stars</div><div class=\"box\"><p>Enter repository url</p><input type=\"text\" df-name></div></div>",
+          "inputs": 0,
+          "outputs": 1,
+          "data": { "name": "" }
+        },
+        {
+          "data-node": "log",
+          "label": "File Log",
+          "icon": "fas fa-file-signature",
+          "html": "<div><div class=\"title-box\"><i class=\"fas fa-file-signature\"></i> Save log file </div></div>",
+          "inputs": 1,
+          "outputs": 0,
+          "data": {}
+        }
+      ]
+    },
+    {
+      "name": "高级功能",
+      "icon": "fas fa-flask",
+      "open": false,
+      "nodes": [
+        {
+          "data-node": "template",
+          "label": "Template",
+          "icon": "fas fa-code",
+          "html": "<div><div class=\"title-box\"><i class=\"fas fa-code\"></i> Template</div><div class=\"box\">Ger<textarea df-template></textarea>数据源<textarea df-template>dddddd</textarea>Output template with vars</div></div>",
+          "inputs": 1,
+          "outputs": 1,
+          "data": { "template": "Write your template" }
+        },
+        {
+          "data-node": "multiple",
+          "label": "Multiple inputs/outputs",
+          "icon": "fas fa-code-branch",
+          "html": "<div><div class=\"box\">Multiple!</div></div>",
+          "inputs": 3,
+          "outputs": 4,
+          "data": {}
+        },
+        {
+          "data-node": "personalized",
+          "label": "Personalized",
+          "icon": "fas fa-fill",
+          "html": "<div>Personalized</div>",
+          "inputs": 1,
+          "outputs": 1,
+          "data": {}
+        },
+        {
+          "data-node": "dbclick",
+          "label": "DBClick!",
+          "icon": "fas fa-mouse",
+          "html": "<div><div class=\"title-box\"><i class=\"fas fa-mouse\"></i> Db Click</div><div class=\"box dbclickbox\" ondblclick=\"showpopup(event)\">Db Click here<div class=\"modal\" style=\"display:none\"><div class=\"modal-content\"><span class=\"close\" onclick=\"closemodal(event)\">&times;</span>Change your variable {name} !<input type=\"text\" df-name></div></div></div></div>",
+          "inputs": 1,
+          "outputs": 1,
+          "data": { "name": "" }
+        }
+      ]
+    }
+  ]
+}

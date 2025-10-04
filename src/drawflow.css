@@ -114,28 +114,66 @@
   stroke: steelblue;
 }
 
-.drawflow-delete {
-  position: absolute;
-  display: block;
-  width: 30px;
-  height: 30px;
-  background: black;
-  color: white;
-  z-index: 4;
-  border: 2px solid white;
-  line-height: 30px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 50%;
-  font-family: monospace;
-  cursor: pointer;
-}
-.drawflow > .drawflow-delete {
-  margin-left: -15px;
-  margin-top: 15px;
-}
 
-.parent-node .drawflow-delete {
+
+
+.parent-node   {
   right: -15px;
   top: -15px;
+}
+
+
+.df-node-actions button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  margin-bottom: 5px;
+
+}
+.df-node-actions button:hover {
+  background: #e0e0e0;
+}
+
+.sidebar .col {
+  padding: 10px;
+}
+
+.node-group {
+  margin-bottom: 10px;
+}
+
+.group-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 6px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.group-toggle:hover {
+  background: #e0e0e0;
+}
+
+.group-toggle .group-arrow {
+  margin-left: auto;
+  transition: transform 0.3s;
+}
+
+.group-toggle .group-arrow.open {
+  transform: rotate(180deg);
+}
+
+.group-nodes {
+  margin-top: 5px;
+  display: block;
+}
+
+
+
+
+.drag-drawflow:hover {
+  background: #f9f9f9;
 }
