@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Drawflow</title>
+  <script type="module" src="dist-webc/shareview-webcomponent.js"></script>
 </head>
 <body>
   <script src="./dist/drawflow.min.js"></script>
@@ -28,6 +29,7 @@
     <div class="loading">Loading nodes...</div>
   </div>
     <div class="col-right">
+      
       <div class="menu">
         <ul>
           <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Home</li>
@@ -53,6 +55,7 @@
               <span class="close-button">&times;</span>
               <h2>参数配置</h2>
               <form id="dynamicNodeForm"></form>
+              <my-compiled-component></my-compiled-component>
               <button id="saveButton" class="btn-submit">保存</button>
           </div>
       </div>
@@ -110,8 +113,6 @@
     // Events!
     editor.on('nodeCreated', function(id) {
       console.log('nodeCreatedddddd', nodeId)
-
-
 
     })
 
@@ -300,10 +301,45 @@
 // });
 
 
+// 使用shadow DOM封装组件，实现样式隔离
+class MyCustomElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
+  connectedCallback() {
+    // 1. 获取 Shadow Root 引用
+    const shadowRoot = this.shadowRoot;
+
+    // 2. 加载外部 CSS 文件
+    fetch('dist-webc/style.css')
+      .then(response => response.text())
+      .then(cssText => {
+        // 3. 创建 <style> 标签并注入内容
+        const style = document.createElement('style');
+        style.textContent = cssText;
+
+        // 4. 将样式添加到 Shadow Root
+        shadowRoot.appendChild(style);
+        
+        // 5. 注入组件的 HTML 内容
+        const content = document.createElement('div');
+        content.innerHTML = `
+          <share-view></share-view>
+        `;
+        shadowRoot.appendChild(content);
+      })
+      .catch(error => console.error("Error loading component CSS:", error));
+  }
+}
+customElements.define('my-compiled-component', MyCustomElement);
+
   </script>
   <script src="./form/form.js"></script>
   <script src="utils/node-menu.js"></script>
   <script src="./load-sidebar.js"></script>
   <script src="utils/node-data-merge.js"></script>
+  
 </body>
 </html>
