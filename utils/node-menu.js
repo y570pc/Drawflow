@@ -1,3 +1,4 @@
+const closePreviewButton = previewModal.querySelector('.close-button');
 // === 全局函数：为单个节点添加按钮 ===
 function addButtonsToNode(nodeId) {
   const nodeElement = document.getElementById('node-' + nodeId);
@@ -79,8 +80,32 @@ function handleRunNode(nodeId) {
 
 function handlePreviewNode(nodeId) {
   const nodeData = editor.getNodeFromId(nodeId);
-  alert(`🔍 Preview:\n${JSON.stringify(nodeData.data, null, 2)}`);
+  const previewModal = document.getElementById('previewModal');
+  const myComponent = previewModal.querySelector('my-compiled-component');
+  // previewModal.style.display = 'flex';
+  previewModal.classList.add('show');
+
+  if (myComponent) {
+  // 假设 nodeData 有个字段叫 stepName
+  const nodeName = nodeData.class  || 'default';
+
+  // 调用自定义方法传参
+  myComponent.setStepName(nodeName);
+} else {
+  console.error('my-compiled-component not found');
 }
+  
+
+}
+
+
+// 关闭弹窗
+
+closePreviewButton.addEventListener('click', function() {
+    // previewModal.style.display = 'none';
+    previewModal.classList.remove('show');
+    currentNodeId = null;
+});
 
 function handleMoreNode(nodeId) {
   console.log('More actions for node:', nodeId);

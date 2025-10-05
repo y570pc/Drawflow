@@ -4,7 +4,7 @@
       "data": {
         "2": {
           "id": 2,
-          "name": "slack",
+          "name": "结果保存",
           "data": [
             {
               "name": "Node Name",
@@ -26,8 +26,8 @@
               "value": "nodeName"
             }
           ],
-          "class": "slack",
-          "html": "\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-slack\"></i> Slack chat message</div>\n          </div>\n          ",
+          "class": "save",
+          "html": "\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-slack\"></i> 结果保存</div>\n          </div>\n          ",
           "typenode": false,
           "inputs": {
             "input_1": {
@@ -45,12 +45,12 @@
         },
         "3": {
           "id": 3,
-          "name": "telegram",
+          "name": "结果可视化",
           "data": {
             "channel": "channel_2"
           },
           "class": "telegram",
-          "html": "\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-telegram-plane\"></i> Telegram bot</div>\n            <div class=\"box\">\n              <p>Send to telegram</p>\n              <p>select channel</p>\n              <select df-channel>\n                <option value=\"channel_1\">Channel 1</option>\n                <option value=\"channel_2\">Channel 2</option>\n                <option value=\"channel_3\">Channel 3</option>\n                <option value=\"channel_4\">Channel 4</option>\n              </select>\n            </div>\n          </div>\n          ",
+          "html": "\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-telegram-plane\"></i> 结果可视化</div>\n            <div class=\"box\">\n              <p>图表类型</p>\n           <select df-channel>\n                <option value=\"line\">折线图</option>\n                <option value=\"bar\">柱状图</option>\n                <option value=\"pie\">饼图</option>\n                   </select>\n            </div>\n          </div>\n          ",
           "typenode": false,
           "inputs": {
             "input_1": {
@@ -68,12 +68,12 @@
         },
         "5": {
           "id": 5,
-          "name": "template",
+          "name": "数据计算",
           "data": {
-            "template": "Write your template"
+            "template": "1"
           },
           "class": "template",
-          "html": "\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-code\"></i> Template</div>\n              <div class=\"box\">\n                Ger Vars\n                <textarea df-template></textarea>\n         <textarea df-template></textarea>\n          Output template with vars\n              </div>\n            </div>\n            ",
+          "html": "\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-code\"></i> 数据计算</div>\n              <div class=\"box\">\n     <p>最低充电量</p>\n       <input type=\"text\" df-template></input>\n          <p >最高充电量</p>\n       <input type=\"text\" df-template></input>\n         <p>最低有效数据</p>\n       <input type=\"text\" df-template></input>\n    <p style=\"text-align: center;font-weight: 900;color:#0798ff\">...</p>     </div>\n            </div>\n            ",
           "typenode": false,
           "inputs": {
             "input_1": {

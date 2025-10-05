@@ -17,8 +17,12 @@
     padding: 20px;
     border-radius: 8px;
     width: 1000px;
+    height: 600px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
+}
+.modal.show {
+    display: flex; /* 只有 show 类时才显示为 flex */
 }
 
 .close-button {

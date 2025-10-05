@@ -20,8 +20,7 @@
   <link rel="stylesheet" type="text/css" href="./form/form.css" />
 
   <header>
-    <h2>Drawflow</h2>
-    <div class="github-link"><a href="https://github.com/jerosoler/Drawflow" target="_blank"><i class="fab fa-github fa-3x"></i></a></div>
+    <h2>自助分析平台</h2>
   </header>
   <div class="wrapper">
   <!-- sidebar.html 或直接在主页面 -->
@@ -55,10 +54,17 @@
               <span class="close-button">&times;</span>
               <h2>参数配置</h2>
               <form id="dynamicNodeForm"></form>
-              <my-compiled-component></my-compiled-component>
               <button id="saveButton" class="btn-submit">保存</button>
           </div>
       </div>
+      <div id="previewModal" class="modal">
+          <div class="modal-content">
+              <span class="close-button">&times;</span>
+              <h2>结果预览</h2>
+              <my-compiled-component></my-compiled-component>
+          </div>
+      </div>
+
   </div>
 
   <script>
@@ -302,35 +308,57 @@
 
 
 // 使用shadow DOM封装组件，实现样式隔离
+// 根据handlePreviewNode函数传入的stepName动态渲染<share-view>组件
 class MyCustomElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.stepName = 'default'; // 默认值
   }
 
-  connectedCallback() {
-    // 1. 获取 Shadow Root 引用
+    // 允许外部设置 stepName
+  setStepName(stepName) {
+    this.stepName = stepName;
+    // 如果已连接，立即更新
+    if (this.isConnected) {
+      this.render();
+    }
+  }
+
+  async connectedCallback() {
     const shadowRoot = this.shadowRoot;
 
-    // 2. 加载外部 CSS 文件
-    fetch('dist-webc/style.css')
-      .then(response => response.text())
-      .then(cssText => {
-        // 3. 创建 <style> 标签并注入内容
-        const style = document.createElement('style');
-        style.textContent = cssText;
+    // 1. 加载 CSS
+    try {
+      const response = await fetch('dist-webc/style.css');
+      const cssText = await response.text();
+      const style = document.createElement('style');
+      style.textContent = cssText;
+      shadowRoot.appendChild(style);
+    } catch (error) {
+      console.error("Error loading CSS:", error);
+    }
 
-        // 4. 将样式添加到 Shadow Root
-        shadowRoot.appendChild(style);
-        
-        // 5. 注入组件的 HTML 内容
-        const content = document.createElement('div');
-        content.innerHTML = `
-          <share-view></share-view>
-        `;
-        shadowRoot.appendChild(content);
-      })
-      .catch(error => console.error("Error loading component CSS:", error));
+    // 2. 渲染组件（使用当前 stepName）
+    this.render();
+  }
+
+  render() {
+    const shadowRoot = this.shadowRoot;
+
+    // 清空旧内容
+    const container = shadowRoot.querySelector('.container') || document.createElement('div');
+    container.className = 'container';
+
+    // ✅ 动态插入 step-name
+    container.innerHTML = `
+      <share-view step-name="${this.stepName}" style="height: auto;"></share-view>
+    `;
+
+    shadowRoot.appendChild(container);
+
+    // 🔥 重要：此时 Vue 还没加载，所以 <share-view> 还不会渲染
+    // 我们需要确保 Vue 已加载（见下一步）
   }
 }
 customElements.define('my-compiled-component', MyCustomElement);
