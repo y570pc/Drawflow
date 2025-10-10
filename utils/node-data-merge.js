@@ -1,4 +1,3 @@
-
 function initAllMergeNodeForms() {
 
   const nodes = editor.drawflow.drawflow[editor.module]?.data;
@@ -30,7 +29,7 @@ function initAllMergeNodeForms() {
     // ✅ 3. 根据 nodeData.direction 设置选中状态
     radios.forEach(radio => {
       // ✅ 只有 value 匹配时才选中
-      radio.checked = radio.value === nodeData.direction;
+      radio.checked = radio.value === nodeData[radio.name];
     });
 
     // ✅ 4. 绑定 change 事件（实现 UI → Data）
@@ -39,11 +38,14 @@ function initAllMergeNodeForms() {
       radio.removeEventListener('change', radioChangeHandler);
 
       function radioChangeHandler(e) {
-        if (e.target.checked) {
-          // 更新数据
+        const radio = e.target;
+        if (radio.checked) {
+          const fieldName = radio.name; // 动态获取字段名，比如 "direction", "align", "size" 等
+          const fieldValue = radio.value;
+
           editor.updateNodeDataFromId(nodeId, { 
             ...nodeData, 
-            direction: e.target.value 
+            [fieldName]: fieldValue  // 动态 key
           });
         }
       }

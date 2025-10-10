@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
   <link rel="stylesheet" type="text/css" href="./form/form.css" />
 
@@ -54,7 +55,7 @@
               <span class="close-button">&times;</span>
               <h2>参数配置</h2>
               <form id="dynamicNodeForm"></form>
-              <button id="saveButton" class="btn-submit">保存</button>
+              <button id="sumbitButton" class="btn-submit">保存</button>
           </div>
       </div>
       <div id="previewModal" class="modal">
@@ -368,6 +369,8 @@ customElements.define('my-compiled-component', MyCustomElement);
   <script src="utils/node-menu.js"></script>
   <script src="./load-sidebar.js"></script>
   <script src="utils/node-data-merge.js"></script>
+  <script src="dist/xlsx/xlsx.bundle.js"></script>
+  <script src="download/xls.js"></script>
   
 </body>
 </html>
