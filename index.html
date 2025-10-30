@@ -1,48 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Drawflow</title>
   <script type="module" src="dist-webc/shareview-webcomponent.js"></script>
+  <style>
+    #line {
+      display: grid;
+      grid-template-columns: 70% 30%;
+      /* 第一列70%，第二列30% */
+      gap: 10px;
+      /* 列之间间距 */
+      overflow: hidden;
+    }
+
+    #chart {
+      flex: 0 0 70%;
+      height: 600px;
+    }
+
+    #legend-container {
+      flex: 0 0 30%;
+      border: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      /* 修改为垂直布局 */
+      font-family: Arial, sans-serif;
+      flex-wrap: wrap;
+    }
+
+    .legend-section {
+      padding: 10px;
+      background-color: #f9f9f9;
+      min-height: 40px;
+
+    }
+
+    .search-section {
+      margin-bottom: 5px;
+      /* 给搜索框和图例之间增加间距 */
+      height: 40px;
+    }
+
+    .legend-section.top,
+    .legend-section.bottom {
+      border-right: 1px dashed #aaa;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+
+    .legend-item {
+      /* 每个图例项的基本样式 */
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      white-space: nowrap;
+      /* 不换行 */
+      max-width: 200px;
+      /* 限制每个项目的最大宽度，可根据需要调整 */
+
+      /* 超出部分隐藏并显示省略号 */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+
+    .legend-item.dragging {
+      opacity: 0.5;
+    }
+
+    input {
+      border-radius: 4px;
+      border: 1px solid #cacaca;
+      height: 30px;
+      line-height: 30px;
+      font-size: 16px;
+      width: 95%;
+      color: #555555;
+    }
+
+    .hoverlayer .hovertext {
+      display: none !important;
+    }
+  </style>
+
 </head>
+
 <body>
   <script src="./dist/drawflow.min.js"></script>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+    integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
   <link rel="stylesheet" type="text/css" href="src/drawflow.css" />
-  <link rel="stylesheet" type="text/css" href="docs/beautiful.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+  <link rel="stylesheet" type="text/css" href="css/beautiful.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+    integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"
+    integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
   <link rel="stylesheet" type="text/css" href="./form/form.css" />
 
   <header>
-    <h2>自助分析平台</h2>
+    <h2>自助分析平台<span style="background-color: #FF8D26;border-radius: 5px;font-size: medium;padding-left: 5px;padding-right:5px;color:white">V1.0</span></h2>
   </header>
   <div class="wrapper">
-  <!-- sidebar.html 或直接在主页面 -->
-  <div id="sidebar" class="sidebar">
-    <div class="loading">Loading nodes...</div>
-  </div>
+    <!-- sidebar.html 或直接在主页面 -->
+    <div id="sidebar" class="sidebar">
+      <div class="loading">Loading nodes...</div>
+    </div>
     <div class="col-right">
-      
-      <div class="menu">
+
+      <!-- <div class="menu">
         <ul>
           <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Home</li>
           <li onclick="editor.changeModule('Other'); changeModule(event);">Other Module</li>
         </ul>
-      </div>
+      </div> -->
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
 
-
-        <div class="btn-clear"  id="saveButton">保存</div>
+        <div class="btn-clear" id="clearButton">清空</div>
+        <div class="btn-save" id="saveButton">保存</div>
         <div class="btn-lock">
           <i id="lock" class="fas fa-lock-open" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
-          <i id="unlock" class="fas fa-lock" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
+          <i id="unlock" class="fas fa-lock" onclick="editor.editor_mode='edit'; changeMode('unlock');"
+            style="display:none;"></i>
         </div>
         <div class="bar-zoom">
           <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
@@ -51,326 +141,337 @@
         </div>
       </div>
       <div id="formModal" class="modal">
-          <div class="modal-content">
-              <span class="close-button">&times;</span>
-              <h2>参数配置</h2>
-              <form id="dynamicNodeForm"></form>
-              <button id="sumbitButton" class="btn-submit">保存</button>
-          </div>
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>参数配置</h2>
+          <form id="dynamicNodeForm"></form>
+          <button id="sumbitButton" class="btn-submit">保存</button>
+        </div>
       </div>
       <div id="previewModal" class="modal">
-          <div class="modal-content">
-              <span class="close-button">&times;</span>
-              <h2>结果预览</h2>
-              <my-compiled-component></my-compiled-component>
-          </div>
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>结果预览</h2>
+          <!-- <my-compiled-component></my-compiled-component> -->
+          <div id="preview-container"></div>
+        </div>
       </div>
 
-  </div>
+    </div>
 
-  <script>
+    <script>
 
-    var id = document.getElementById("drawflow");
-    const editor = new Drawflow(id);
-    editor.reroute = true;
-    editor.reroute_fix_curvature = true;
-    editor.force_first_input = false;
+      var id = document.getElementById("drawflow");
+      const editor = new Drawflow(id);
+      editor.reroute = true;
+      editor.reroute_fix_curvature = true;
+      editor.force_first_input = false;
 
-  /*
-    editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
-      var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
-      return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
-    }*/
-
-
-    // 加载JSON数据并赋值给变量
-    const dataToImport = null;
-    
-
-  setTimeout(() => {
-    Object.keys(editor.drawflow.drawflow.Home.data).forEach(addButtonsToNode);
-    initAllMergeNodeForms();
-  }, 100);
+      /*
+        editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
+          var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
+          return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
+        }*/
 
 
+      // 加载JSON数据并赋值给变量
+      const dataToImport = null;
 
 
-    editor.start();
-    //editor.import(dataToImport);
+      setTimeout(() => {
+        Object.keys(editor.drawflow.drawflow.Home.data).forEach(addButtonsToNode);
+        initAllMergeNodeForms();
+      }, 100);
 
-    // 使用 Fetch API 加载 data.json 文件
-    fetch('data.json')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('网络响应不正常: ' + response.statusText);
-        }
-        return response.json();
+
+
+
+      editor.start();
+      //editor.import(dataToImport);
+
+      // 使用 Fetch API 加载 data.json 文件
+      fetch('data.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('网络响应不正常: ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('加载的JSON数据:', data);
+          editor.import(data); // 同步导入数据
+
+        })
+        .catch(error => {
+          console.error('加载JSON数据时出错:', error);
+        });
+
+
+
+      // Events!
+      editor.on('nodeCreated', function (nodeId) {
+        setTimeout(() => {
+          addButtonsToNode(nodeId);
+        }, 10);
+
       })
-      .then(data => {
-        console.log('加载的JSON数据:', data);
-        editor.import(data); // 同步导入数据
 
+      editor.on('nodeRemoved', function (id) {
+        console.log("Node removed " + id);
       })
-      .catch(error => {
-        console.error('加载JSON数据时出错:', error);
-      });
+
+      editor.on('nodeSelected', function (id) {
+        console.log("Node selected " + id);
+        const node = document.querySelector(`.drawflow-node[id="${id}"]`);
+        console.log(node);
+      })
+
+      editor.on('moduleCreated', function (name) {
+        console.log("Module Created " + name);
+      })
+
+      editor.on('moduleChanged', function (name) {
+        console.log("Module Changed " + name);
+      })
+
+      editor.on('connectionCreated', function (connection) {
+        console.log('Connection created');
+        console.log(connection);
+      })
+
+      editor.on('connectionRemoved', function (connection) {
+        console.log('Connection removed');
+        console.log(connection);
+      })
+      /*
+          editor.on('mouseMove', function(position) {
+            console.log('Position mouse x:' + position.x + ' y:'+ position.y);
+          })
+      */
+      editor.on('nodeMoved', function (id) {
+        console.log("Node moved " + id);
+      })
+
+      editor.on('zoom', function (zoom) {
+        console.log('Zoom level ' + zoom);
+      })
+
+      editor.on('translate', function (position) {
+        console.log('Translate x:' + position.x + ' y:' + position.y);
+      })
+
+      editor.on('addReroute', function (id) {
+        console.log("Reroute added " + id);
+      })
+
+      editor.on('removeReroute', function (id) {
+        console.log("Reroute removed " + id);
+      })
 
 
+      /* DRAG EVENT */
 
-    // Events!
-    editor.on('nodeCreated', function(id) {
-      console.log('nodeCreatedddddd', nodeId)
+      /* Mouse and Touch Actions */
 
-    })
-
-    editor.on('nodeRemoved', function(id) {
-      console.log("Node removed " + id);
-    })
-
-    editor.on('nodeSelected', function(id) {
-      console.log("Node selected " + id);
-      const node = document.querySelector(`.drawflow-node[id="${id}"]`);
-      console.log(node);       
-    })
-
-    editor.on('moduleCreated', function(name) {
-      console.log("Module Created " + name);
-    })
-
-    editor.on('moduleChanged', function(name) {
-      console.log("Module Changed " + name);
-    })
-
-    editor.on('connectionCreated', function(connection) {
-      console.log('Connection created');
-      console.log(connection);
-    })
-
-    editor.on('connectionRemoved', function(connection) {
-      console.log('Connection removed');
-      console.log(connection);
-    })
-/*
-    editor.on('mouseMove', function(position) {
-      console.log('Position mouse x:' + position.x + ' y:'+ position.y);
-    })
-*/
-    editor.on('nodeMoved', function(id) {
-      console.log("Node moved " + id);
-    })
-
-    editor.on('zoom', function(zoom) {
-      console.log('Zoom level ' + zoom);
-    })
-
-    editor.on('translate', function(position) {
-      console.log('Translate x:' + position.x + ' y:'+ position.y);
-    })
-
-    editor.on('addReroute', function(id) {
-      console.log("Reroute added " + id);
-    })
-
-    editor.on('removeReroute', function(id) {
-      console.log("Reroute removed " + id);
-    })
-
-
-    /* DRAG EVENT */
-
-    /* Mouse and Touch Actions */
-
-    var elements = document.getElementsByClassName('drag-drawflow');
-    for (var i = 0; i < elements.length; i++) {
-      elements[i].addEventListener('touchend', drop, false);
-      elements[i].addEventListener('touchmove', positionMobile, false);
-      elements[i].addEventListener('touchstart', drag, false );
-    }
-
-    var mobile_item_selec = '';
-    var mobile_last_move = null;
-   function positionMobile(ev) {
-     mobile_last_move = ev;
-   }
-
-   function allowDrop(ev) {
-      ev.preventDefault();
-    }
-
-    function drag(ev) {
-      if (ev.type === "touchstart") {
-        mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
-      } else {
-      ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+      var elements = document.getElementsByClassName('drag-drawflow');
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('touchend', drop, false);
+        elements[i].addEventListener('touchmove', positionMobile, false);
+        elements[i].addEventListener('touchstart', drag, false);
       }
-    }
 
-    function drop(ev) {
-      if (ev.type === "touchend") {
-        var parentdrawflow = document.elementFromPoint( mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
-        if(parentdrawflow != null) {
-          addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
-        }
-        mobile_item_selec = '';
-      } else {
+      var mobile_item_selec = '';
+      var mobile_last_move = null;
+      function positionMobile(ev) {
+        mobile_last_move = ev;
+      }
+
+      function allowDrop(ev) {
         ev.preventDefault();
-        var data = ev.dataTransfer.getData("node");
-        addNodeToDrawFlow(data, ev.clientX, ev.clientY);
       }
 
-    }
+      function drag(ev) {
+        if (ev.type === "touchstart") {
+          mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+        } else {
+          ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+        }
+      }
+
+      function drop(ev) {
+        // 🟢 判断是否是文件拖入
+        if (ev.dataTransfer.files.length > 0) {
+          // 是文件 → 执行文件上传逻辑，不添加节点
+          handleFileDrop(ev);
+          return;
+        } else {
+          if (ev.type === "touchend") {
+            var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+            if (parentdrawflow != null) {
+              addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
+            }
+            mobile_item_selec = '';
+          } else {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("node");
+            addNodeToDrawFlow(data, ev.clientX, ev.clientY);
+          }
+        }
+      }
 
 
-  var transform = '';
-  function showpopup(e) {
-    e.target.closest(".drawflow-node").style.zIndex = "9999";
-    e.target.children[0].style.display = "block";
-    //document.getElementById("modalfix").style.display = "block";
+      var transform = '';
+      function showpopup(e) {
+        e.target.closest(".drawflow-node").style.zIndex = "9999";
+        e.target.children[0].style.display = "block";
+        //document.getElementById("modalfix").style.display = "block";
 
-    //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
-    transform = editor.precanvas.style.transform;
-    editor.precanvas.style.transform = '';
-    editor.precanvas.style.left = editor.canvas_x +'px';
-    editor.precanvas.style.top = editor.canvas_y +'px';
-    console.log(transform);
+        //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
+        transform = editor.precanvas.style.transform;
+        editor.precanvas.style.transform = '';
+        editor.precanvas.style.left = editor.canvas_x + 'px';
+        editor.precanvas.style.top = editor.canvas_y + 'px';
+        console.log(transform);
 
-    //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
-    //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
-    editor.editor_mode = "fixed";
+        //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
+        //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
+        editor.editor_mode = "fixed";
 
-  }
+      }
 
-   function closemodal(e) {
-     e.target.closest(".drawflow-node").style.zIndex = "2";
-     e.target.parentElement.parentElement.style.display  ="none";
-     //document.getElementById("modalfix").style.display = "none";
-     editor.precanvas.style.transform = transform;
-       editor.precanvas.style.left = '0px';
-       editor.precanvas.style.top = '0px';
-      editor.editor_mode = "edit";
-   }
+      function closemodal(e) {
+        e.target.closest(".drawflow-node").style.zIndex = "2";
+        e.target.parentElement.parentElement.style.display = "none";
+        //document.getElementById("modalfix").style.display = "none";
+        editor.precanvas.style.transform = transform;
+        editor.precanvas.style.left = '0px';
+        editor.precanvas.style.top = '0px';
+        editor.editor_mode = "edit";
+      }
 
-    function changeModule(event) {
-      var all = document.querySelectorAll(".menu ul li");
+      function changeModule(event) {
+        var all = document.querySelectorAll(".menu ul li");
         for (var i = 0; i < all.length; i++) {
           all[i].classList.remove('selected');
         }
-      event.target.classList.add('selected');
-    }
-
-    function changeMode(option) {
-
-    //console.log(lock.id);
-      if(option == 'lock') {
-        lock.style.display = 'none';
-        unlock.style.display = 'block';
-      } else {
-        lock.style.display = 'block';
-        unlock.style.display = 'none';
+        event.target.classList.add('selected');
       }
 
-    }
+      function changeMode(option) {
 
-  // 点击按钮，保存数据
-  const saveButton = document.getElementById('saveButton');
-  saveButton.addEventListener('click', function() {
-      // 1. 获取 Drawflow 最新的数据
-      const data = editor.export();
-      console.log('最新的 Drawflow 数据:', data);
+        //console.log(lock.id);
+        if (option == 'lock') {
+          lock.style.display = 'none';
+          unlock.style.display = 'block';
+        } else {
+          lock.style.display = 'block';
+          unlock.style.display = 'none';
+        }
 
-      // 2. 将 JavaScript 对象转换为 JSON 字符串
-      const jsonString = JSON.stringify(data, null, 2);
+      }
 
-      // 3. 创建一个 Blob 对象，用于文件下载
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      // 点击按钮，保存数据
+      const saveButton = document.getElementById('saveButton');
+      saveButton.addEventListener('click', function () {
+        // 1. 获取 Drawflow 最新的数据
+        const data = editor.export();
+        console.log('最新的 Drawflow 数据:', data);
 
-      // 4. 创建一个临时的 URL，用于下载
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+        // 2. 将 JavaScript 对象转换为 JSON 字符串
+        const jsonString = JSON.stringify(data, null, 2);
 
-      a.href = url;
-      a.download = 'data.json'; // 指定下载的文件名
-      document.body.appendChild(a);
-      a.click(); // 模拟点击链接进行下载
+        // 3. 创建一个 Blob 对象，用于文件下载
+        const blob = new Blob([jsonString], { type: 'application/json' });
 
-      // 5. 清理临时资源
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-  });
+        // 4. 创建一个临时的 URL，用于下载
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+
+        a.href = url;
+        a.download = 'data.json'; // 指定下载的文件名
+        document.body.appendChild(a);
+        a.click(); // 模拟点击链接进行下载
+
+        // 5. 清理临时资源
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // 点击按钮，保存数据
+      const clearButton = document.getElementById('clearButton');
+      clearButton.addEventListener('click', function () {
+
+        editor.clear();
+
+      });
 
 
+      // 使用shadow DOM封装组件，实现样式隔离
+      // 根据handlePreviewNode函数传入的stepName动态渲染<share-view>组件
+      class MyCustomElement extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: 'open' });
+          this.stepName = 'default'; // 默认值
+        }
 
-// === 1. 监听未来创建的节点（包括从 JSON 加载时）===
-// editor.on('nodeCreated', (nodeId) => {
-//   setTimeout(() => {
-//     addButtonsToNode(nodeId);
-//   }, 10);
-// });
+        // 允许外部设置 stepName
+        setStepName(stepName) {
+          this.stepName = stepName;
+          // 如果已连接，立即更新
+          if (this.isConnected) {
+            this.render();
+          }
+        }
 
+        async connectedCallback() {
+          const shadowRoot = this.shadowRoot;
 
-// 使用shadow DOM封装组件，实现样式隔离
-// 根据handlePreviewNode函数传入的stepName动态渲染<share-view>组件
-class MyCustomElement extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: 'open' });
-    this.stepName = 'default'; // 默认值
-  }
+          // 1. 加载 CSS
+          try {
+            const response = await fetch('dist-webc/style.css');
+            const cssText = await response.text();
+            const style = document.createElement('style');
+            style.textContent = cssText;
+            shadowRoot.appendChild(style);
+          } catch (error) {
+            console.error("Error loading CSS:", error);
+          }
 
-    // 允许外部设置 stepName
-  setStepName(stepName) {
-    this.stepName = stepName;
-    // 如果已连接，立即更新
-    if (this.isConnected) {
-      this.render();
-    }
-  }
+          // 2. 渲染组件（使用当前 stepName）
+          this.render();
+        }
 
-  async connectedCallback() {
-    const shadowRoot = this.shadowRoot;
+        render() {
+          const shadowRoot = this.shadowRoot;
 
-    // 1. 加载 CSS
-    try {
-      const response = await fetch('dist-webc/style.css');
-      const cssText = await response.text();
-      const style = document.createElement('style');
-      style.textContent = cssText;
-      shadowRoot.appendChild(style);
-    } catch (error) {
-      console.error("Error loading CSS:", error);
-    }
+          // 清空旧内容
+          const container = shadowRoot.querySelector('.container') || document.createElement('div');
+          container.className = 'container';
 
-    // 2. 渲染组件（使用当前 stepName）
-    this.render();
-  }
-
-  render() {
-    const shadowRoot = this.shadowRoot;
-
-    // 清空旧内容
-    const container = shadowRoot.querySelector('.container') || document.createElement('div');
-    container.className = 'container';
-
-    // ✅ 动态插入 step-name
-    container.innerHTML = `
+          // ✅ 动态插入 step-name
+          container.innerHTML = `
       <share-view step-name="${this.stepName}" style="height: auto;"></share-view>
     `;
 
-    shadowRoot.appendChild(container);
+          shadowRoot.appendChild(container);
 
-    // 🔥 重要：此时 Vue 还没加载，所以 <share-view> 还不会渲染
-    // 我们需要确保 Vue 已加载（见下一步）
-  }
-}
-customElements.define('my-compiled-component', MyCustomElement);
+          // 🔥 重要：此时 Vue 还没加载，所以 <share-view> 还不会渲染
+          // 我们需要确保 Vue 已加载（见下一步）
+        }
+      }
+      customElements.define('my-compiled-component', MyCustomElement);
 
-  </script>
-  <script src="./form/form.js"></script>
-  <script src="utils/node-menu.js"></script>
-  <script src="./load-sidebar.js"></script>
-  <script src="utils/node-data-merge.js"></script>
-  <script src="dist/xlsx/xlsx.bundle.js"></script>
-  <script src="download/xls.js"></script>
-  
+    </script>
+    <script src="./form/form.js"></script>
+    <script src="utils/node-menu.js"></script>
+    <script src="./load-sidebar.js"></script>
+    <script src="utils/node-data-merge.js"></script>
+    <script src="js/xlsx.bundle.js"></script>
+    <script src="download/xls.js"></script>
+    <script src="download/upload.js"></script>
+    <script src="figure/line.js"></script>
+
 </body>
+
 </html>

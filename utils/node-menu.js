@@ -42,7 +42,7 @@ function addButtonsToNode(nodeId) {
     handlePreviewNode(nodeId);
   });
 
-    btnDownload.addEventListener('click', (e) => {
+  btnDownload.addEventListener('click', (e) => {
     e.stopPropagation();
     fetchDataAndExport(nodeId);
   });
@@ -62,7 +62,7 @@ function addButtonsToNode(nodeId) {
 
 // === 处理函数：运行、预览、更多 ===
 function handleRunNode(nodeId) {
-  nodeIdList = [2, 3, 5, 6, 7]
+  nodeIdList = Object.keys(editor.drawflow.drawflow.Home.data);
   // 初始化一个空对象，用于合并所有 data
   const mergedData = {};
 
@@ -80,55 +80,67 @@ function handleRunNode(nodeId) {
   });
 
   const nodeData = editor.getNodeFromId(nodeId);
-  console.log("=== 处理函数：运行、预览、更多 ===" + nodeId)
-  const payload = {
-    name: nodeData.name,
-    data: mergedData,
-  };
+  console.log(nodeData)
+  if (nodeData.name === "figure") {
+    parseWorkSheet(nodeData.data)
+  } else {
+    const payload = {
+      name: nodeData.name,
+      data: mergedData,
+    };
 
-  fetch('http://localhost:5000/api/rte/run', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-    .then(res => {
-      if (!res.ok) {
-        // 如果状态码不是 2xx，视为失败
-        return res.json().then(errData => {
-          throw new Error(errData.error || 'Unknown error');
-        });
-      }
-      return res.json();  // 成功则解析 JSON
+    fetch('http://localhost:5000/api/rte/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     })
-    .then(data => {
-      // 这里才是真正的成功
-      console.log('Success:', data);
-      alert('✅ 【' + nodeData.name + '】步骤计算完成！');
-    })
-    .catch(err => {
-      // 捕获网络错误或上面 throw 的错误
-      console.error('Failed:', err.message);
-      alert('❌ 执行失败：' + err.message);
-    });
+      .then(res => {
+        if (!res.ok) {
+          // 如果状态码不是 2xx，视为失败
+          return res.json().then(errData => {
+            throw new Error(errData.error || 'Unknown error');
+          });
+        }
+        return res.json();  // 成功则解析 JSON
+      })
+      .then(data => {
+        // 这里才是真正的成功
+        console.log('Success:', data);
+        alert('✅ 【' + nodeData.name + '】步骤计算完成！');
+      })
+      .catch(err => {
+        // 捕获网络错误或上面 throw 的错误
+        console.error('Failed:', err.message);
+        alert('❌ 执行失败：' + err.message);
+      });
+  }
+
 }
+
+
 
 function handlePreviewNode(nodeId) {
   const nodeData = editor.getNodeFromId(nodeId);
   const previewModal = document.getElementById('previewModal');
-  const myComponent = previewModal.querySelector('my-compiled-component');
-  // previewModal.style.display = 'flex';
+  const container = document.getElementById('preview-container');
+  container.innerHTML = ''; // 清空
   previewModal.classList.add('show');
 
-  if (myComponent) {
+  if (nodeData.name === 'figure') {
+
+    container.appendChild(createLineContainer());
+
+    createInteractiveChart(window.chartData, 'chart', 'left-axis-legend', 'right-axis-legend', 'search-input', nodeData.data.title || '折线图');
+  } else {
+    // 创建并插入自定义组件
+    const myComponent = document.createElement('my-compiled-component');
+    container.appendChild(myComponent);
     // 假设 nodeData 有个字段叫 stepName
     const nodeName = nodeData.name || 'default';
 
     // 调用自定义方法传参
     myComponent.setStepName(nodeName);
-  } else {
-    console.error('my-compiled-component not found');
   }
-
 
 }
 
@@ -144,4 +156,64 @@ closePreviewButton.addEventListener('click', function () {
 function handleMoreNode(nodeId) {
   console.log('More actions for node:', nodeId);
   createForm(nodeId);
+}
+
+
+function createLineContainer() {
+  // 创建最外层 div#line
+  const lineDiv = document.createElement('div');
+  lineDiv.id = 'line';
+
+  // 创建 chart 容器
+  const chartDiv = document.createElement('div');
+  chartDiv.id = 'chart';
+  lineDiv.appendChild(chartDiv);
+
+  // 创建图例容器 #legend-container
+  const legendContainer = document.createElement('div');
+  legendContainer.id = 'legend-container';
+
+  // 1. 添加 "筛选列数据" 标题
+  const filterLabel = document.createElement('strong');
+  filterLabel.textContent = '筛选列数据';
+  legendContainer.appendChild(filterLabel);
+
+  // 2. 搜索输入区
+  const searchSection = document.createElement('div');
+  searchSection.className = 'legend-section search-section';
+
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.id = 'search-input';
+  searchInput.placeholder = '搜索系列...';
+
+  searchSection.appendChild(searchInput);
+  legendContainer.appendChild(searchSection);
+
+  // 3. 左Y轴标题
+  const leftLabel = document.createElement('strong');
+  leftLabel.textContent = '左Y轴数据';
+  legendContainer.appendChild(leftLabel);
+
+  // 4. 左Y轴图例区
+  const leftLegend = document.createElement('div');
+  leftLegend.className = 'legend-section top';
+  leftLegend.id = 'left-axis-legend';
+  legendContainer.appendChild(leftLegend);
+
+  // 5. 右Y轴标题
+  const rightLabel = document.createElement('strong');
+  rightLabel.textContent = '右Y轴数据';
+  legendContainer.appendChild(rightLabel);
+
+  // 6. 右Y轴图例区
+  const rightLegend = document.createElement('div');
+  rightLegend.className = 'legend-section bottom';
+  rightLegend.id = 'right-axis-legend';
+  legendContainer.appendChild(rightLegend);
+
+  // 将图例容器加入 lineDiv
+  lineDiv.appendChild(legendContainer);
+
+  return lineDiv; // 返回构建好的 DOM 节点
 }

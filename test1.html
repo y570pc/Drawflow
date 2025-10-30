@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Plotly.js 可拖拽图例切换Y轴</title>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    #line {
+      display: grid;
+      grid-template-columns: 70% 30%;
+      /* 第一列70%，第二列30% */
+      gap: 10px;
+      /* 列之间间距 */
+      overflow: hidden;
+    }
+
+    #chart {
+      flex: 0 0 70%;
+      height: 600px;
+    }
+
+    #legend-container {
+      flex: 0 0 30%;
+      border: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      /* 修改为垂直布局 */
+      font-family: Arial, sans-serif;
+      flex-wrap: wrap;
+    }
+
+    .legend-section {
+      padding: 10px;
+      background-color: #f9f9f9;
+      min-height: 40px;
+
+    }
+
+    .search-section {
+      margin-bottom: 5px;
+      /* 给搜索框和图例之间增加间距 */
+      height: 40px;
+    }
+
+    .legend-section.top,
+    .legend-section.bottom {
+      border-right: 1px dashed #aaa;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+
+    .legend-item {
+      /* 每个图例项的基本样式 */
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      white-space: nowrap;
+      /* 不换行 */
+      max-width: 200px;
+      /* 限制每个项目的最大宽度，可根据需要调整 */
+
+      /* 超出部分隐藏并显示省略号 */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+
+    .legend-item.dragging {
+      opacity: 0.5;
+    }
+
+    input {
+      border-radius: 4px;
+      border: 1px solid #cacaca;
+      height: 30px;
+      line-height: 30px;
+      font-size: 16px;
+      width: 95%;
+      color: #555555;
+    }
+
+    .hoverlayer .hovertext {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="line">
+    <div id="chart"></div>
+
+    <div id="legend-container">
+      <strong>筛选列数据</strong>
+      <div class="legend-section search-section">
+        <input type="text" id="search-input" placeholder="搜索系列..." oninput="filterSeries(event)" />
+      </div>
+      <strong>左Y轴数据</strong>
+      <div class="legend-section top" id="left-axis-legend" ondrop="onDrop(event)" ondragover="allowDrop(event)">
+      </div>
+      <strong>右Y轴数据</strong>
+      <div class="legend-section bottom" id="right-axis-legend" ondrop="onDrop(event)" ondragover="allowDrop(event)">
+
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+    // 初始数据
+    const allData = [
+      { x: [1, 2, 3, 4, 5], y: [10, 20, 15, 25, 30], name: 'AAAAAAAAAAAAAAAAAAAAAAAA系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [10, 20, 15, 25, 31], name: 'EEEEEEEEEEEEEEEEEEEEEEE系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [10, 20, 15, 25, 32], name: 'FFFFFFFFFFFFF系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [10, 20, 15, 25, 33], name: 'GGGGGGGGGGGGGGGG系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [10, 20, 15, 25, 34], name: 'HHHHHHHHHHHHHH系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [100, 150, 130, 180, 200], name: 'B系列', yaxis: 'y2', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [5, 8, 6, 9, 12], name: 'C系列', yaxis: 'y', visible: true },
+      { x: [1, 2, 3, 4, 5], y: [80, 100, 90, 110, 130], name: 'D系列', yaxis: 'y2', visible: true }
+    ];
+
+    let traces = allData.map(t => ({
+      x: t.x,
+      y: t.y,
+      name: t.name,
+      yaxis: t.yaxis === 'y2' ? 'y2' : 'y',
+      visible: t.visible,
+      mode: 'lines',
+      hoverinfo: 'none',
+      hovertemplate: '<extra></extra>'
+    }));
+
+
+    const layout = {
+      title: '拖拽图例切换Y轴',
+      yaxis: {
+        title: '左Y轴 (单位: 左)',
+
+      },
+      yaxis2: {
+        title: '右Y轴 (单位: 右)',
+        overlaying: 'y',
+        side: 'right',
+        showgrid: false,
+        ticks: '',
+      },
+      xaxis: { title: 'X轴', showgrid: false, ticks: '', rangeslider: { visible: true,thickness: 0.05 }, },
+      showlegend: false,
+      margin: { r: 100 },
+    };
+
+    // 初始化图表
+    function plotChart() {
+      Plotly.newPlot('chart', traces, layout).then((gd) => {
+        storeColors(gd);
+        buildLegend(); // 构建带颜色的图例
+
+        // 绑定悬停事件
+        const chartDiv = document.getElementById('chart');
+        chartDiv.on('plotly_hover', onPlotHover);
+        chartDiv.on('plotly_unhover', onPlotUnhover);
+
+
+      });
+    }
+
+    // 构建自定义图例
+    function buildLegend() {
+      const leftLegend = document.getElementById('left-axis-legend');
+      const rightLegend = document.getElementById('right-axis-legend');
+
+      // 清空
+      leftLegend.innerHTML = '';
+      rightLegend.innerHTML = '';
+
+      traces.forEach(t => {
+        // ✅ 只添加 visible 为 true 的图例项（隐藏的不显示在图例中）
+        if (t.visible !== true && t.visible !== 'true') return;
+
+        const div = document.createElement('div');
+        div.className = 'legend-item';
+        div.textContent = t.name;
+        div.title = t.name;
+        div.draggable = true;
+        div.dataset.name = t.name;
+
+        // 设置颜色
+        if (t.color) {
+          div.style.borderColor = t.color;
+          div.style.borderWidth = '2px';
+          div.style.color = t.color;
+        }
+
+        // 点击切换显隐
+        div.onclick = function (e) {
+          e.stopPropagation();
+          t.visible = t.visible === true ? 'legendonly' : true;
+
+          if (t.visible === 'legendonly') {
+            div.style.color = '#ccc';
+            div.style.borderColor = '#ccc';
+            div.style.fontStyle = 'italic';
+          } else {
+            div.style.color = t.color;
+            div.style.borderColor = t.color;
+            div.style.fontStyle = 'normal';
+          }
+
+          updateChart();
+        };
+
+        div.addEventListener('dragstart', onDragStart);
+        div.addEventListener('dragend', () => {
+          div.classList.remove('dragging');
+        });
+
+        // 初始样式
+        if (t.visible === 'legendonly') {
+          div.style.color = '#ccc';
+          div.style.borderColor = '#ccc';
+          div.style.fontStyle = 'italic';
+        }
+
+        // 添加到对应区域
+        if (t.yaxis === 'y') {
+          leftLegend.appendChild(div);
+        } else {
+          rightLegend.appendChild(div);
+        }
+      });
+    }
+
+
+
+    function onDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.dataset.name);
+      e.target.classList.add('dragging');
+    }
+
+    function allowDrop(e) {
+      e.preventDefault();
+    }
+
+    function onDrop(e) {
+      e.preventDefault();
+      const name = e.dataTransfer.getData('text/plain');
+      const targetSection = e.currentTarget.id;
+
+      // 找到轨迹
+      const trace = traces.find(t => t.name === name);
+      if (!trace) return;
+
+      // 判断目标区域
+      const newAxis = targetSection === 'left-axis-legend' ? 'y' : 'y2';
+
+      if (trace.yaxis !== newAxis) {
+        trace.yaxis = newAxis;
+        updateChart();
+      }
+    }
+
+    function filterSeries(e) {
+      const query = e.target.value.trim();
+      let keywords = [];
+      if (query) {
+        keywords = query.split('|').map(k => k.trim().toLowerCase()).filter(k => k);
+      }
+
+      // 重置所有 trace 的 visible 状态（用于图表显示）
+      traces.forEach(trace => {
+        const matches = keywords.length === 0 ||
+          keywords.some(k => trace.name.toLowerCase().includes(k));
+        trace.visible = matches ? true : 'legendonly';
+      });
+
+      // ✅ 重建图例（会根据 trace.yaxis 和 trace.visible 自动分组）
+      buildLegend();
+
+      // ✅ 同步更新图表
+      updateChart()
+    }
+
+    // 更新图表和图例
+    function updateChart() {
+
+      Plotly.react('chart', traces, layout).then((gd) => {
+        // ✅ 关键：更新图表后，重建图例（包含最新 yaxis 分组）
+        storeColors(gd);
+        buildLegend();
+      });
+    }
+
+
+    // --- 新增功能：十字线与标注 ---
+
+    /**
+     * 存储 Plotly 分配的颜色到 traces 数组中
+     * @param {object} gd - Plotly 图表 DOM 元素 (来自 newPlot 或 react 的 .then)
+     */
+    function storeColors(gd) {
+      gd._fullData.forEach((plotTrace) => {
+        const originalTrace = traces.find(t => t.name === plotTrace.name);
+        if (originalTrace) {
+          // 优先使用 line.color，备用 marker.color
+          originalTrace.color = plotTrace.line ? plotTrace.line.color : plotTrace.marker.color;
+        }
+      });
+    }
+
+    /**
+     * 线性插值函数
+     * 在 xData 和 yData 数组中，计算给定 x 值的 y 值
+     * @param {number} x - 目标 x 坐标
+     * @param {Array<number>} xData - 轨迹的 x 数据数组
+     * @param {Array<number>} yData - 轨迹的 y 数据数组
+     * @returns {number | null} - 插值计算出的 y 值，如果 x 越界则返回 null
+     */
+    function interpolate(x, xData, yData) {
+      // 找到 x 应该插入的位置索引 i，使得 xData[i-1] <= x < xData[i]
+      let i = xData.findIndex(val => val > x);
+
+      if (i === -1) { // x 大于或等于所有 xData
+        if (x === xData[xData.length - 1]) return yData[yData.length - 1]; // 恰好在最后一个点
+        return null; // 越界 (右)
+      }
+      if (i === 0) { // x 小于所有 xData
+        if (x === xData[0]) return yData[0]; // 恰好在第一个点
+        return null; // 越界 (左)
+      }
+
+      // 检查完全匹配
+      if (xData[i - 1] === x) {
+        return yData[i - 1];
+      }
+
+      // 此时, xData[i-1] < x < xData[i]
+      const x1 = xData[i - 1];
+      const x2 = xData[i];
+      const y1 = yData[i - 1];
+      const y2 = yData[i];
+
+      if (x2 === x1) return y1; // 避免除以零
+
+      const t = (x - x1) / (x2 - x1); // 计算插值比例
+      return y1 + t * (y2 - y1); // 应用比例
+    }
+
+    /**
+     * 鼠标悬停事件处理
+     * @param {object} eventData - Plotly 悬停事件数据
+     */
+    function onPlotHover(eventData) {
+      if (!eventData.points) return;
+
+      // 'hovermode: x unified' 确保我们总是能拿到 x 坐标
+      const xval = eventData.points[0].x;
+
+      // *** 新增：解决图表压缩问题的关键 ***
+      // 1. 获取当前可见的 x 轴范围
+      const xaxis = eventData.points[0].xaxis; // 获取当前点所在的 x 轴对象
+      const xRange = xaxis.range;             // 轴的可见范围 [min, max]
+      const xMidpoint = (xRange[0] + xRange[1]) / 2; // 计算可见范围的中点
+
+      // 2. 判断鼠标是在图表左侧还是右侧
+      const isRightSide = (xval > xMidpoint);
+
+      // 3. 根据位置动态设置锚点和偏移量
+      const xAnchor = isRightSide ? 'right' : 'left'; // 右侧悬停时，锚点在右
+      const xOffset = isRightSide ? -10 : 10;         // 右侧悬停时，向左偏移 10px
+      const textAlign = isRightSide ? 'right' : 'left'; // 文本对齐方式
+      // *** 修改结束 ***
+
+
+      const intersections = [];
+      traces.forEach(trace => {
+        if (trace.visible === true) { // 仅处理可见轨迹
+          const yval = interpolate(xval, trace.x, trace.y);
+          if (yval !== null) { // 确保 xval 在该轨迹的范围内
+            intersections.push({
+              name: trace.name,
+              y: yval,
+              yaxis: trace.yaxis,
+              color: trace.color || '#000' // 使用存储的颜色
+            });
+          }
+        }
+      });
+
+      // 核心要求：根据 Y 值(交点的值)降序排列
+      intersections.sort((a, b) => b.y - a.y);
+
+      // 1. 创建垂直线 (十字线)
+      const shapes = [{
+        type: 'line',
+        xref: 'x',
+        yref: 'paper', // 垂直跨越整个绘图区
+        x0: xval,
+        x1: xval,
+        y0: 0,
+        y1: 1,
+        line: {
+          color: 'rgba(100, 100, 100, 0.7)',
+          width: 1,
+          dash: 'dot'
+        }
+      }];
+
+      // 2. 创建排序后的标注
+      const annotations = [];
+      let yPos = 0.95; // 从绘图区顶部 98% 的位置开始
+      const yStep = 0.04 // 每个标注占用的垂直空间 (可调整)
+      annotations.push({
+        text: `<b>时间:</b> ${xval}`, // 假设 xval 精度到小数点后4位
+        x: xval,
+        y: 0.99, // 放在最顶部的 Y 位置 (paper 坐标)
+        xref: 'x',
+        yref: 'paper',
+        align: textAlign,
+        xanchor: xAnchor,
+        ax: 0, // 不偏移
+        yanchor: 'top',
+        showarrow: false,
+        font: {
+          size: 14,
+          color: '#333'
+        },
+        bgcolor: 'rgba(200, 200, 200, 1)',
+
+      });
+      intersections.forEach(item => {
+        annotations.push({
+          text: `<b>${item.name}</b>: ${item.y}`,
+          x: xval,
+          y: yPos,
+          xref: 'x',
+          yref: 'paper', // 标注的位置也相对于绘图区
+
+          // *** 修改：应用动态值 ***
+          align: textAlign,  // 文本对齐
+          xanchor: xAnchor,  // 动态锚点
+          ax: xOffset,     // 动态偏移
+          // *** 修改结束 ***
+
+          yanchor: 'top', // 锚点在文本顶部
+          showarrow: false,
+          bgcolor: 'rgba(255, 255, 255, 0.85)',
+          // bordercolor: item.color,
+          // borderwidth: 2,
+          font: {
+            color: item.color,
+            size: 12
+          },
+          // ax: 10, // <- 已被上面的动态 ax 替换
+        });
+        yPos -= yStep; // 向下移动，为下一个标注腾出空间
+      });
+
+      // 使用 relayout 更新十字线和标注
+      // 因为标注现在总是在绘图区内部，Plotly 不会再尝试自动缩放坐标轴
+      Plotly.relayout('chart', { shapes: shapes, annotations: annotations });
+    }
+
+    /**
+     * 鼠标移出图表区域事件处理
+     */
+    function onPlotUnhover() {
+      // 清空十字线和标注
+      Plotly.relayout('chart', { shapes: [], annotations: [] });
+    }
+
+
+
+    // 初始化
+    plotChart();
+  </script>
+
+</body>
+
+</html>

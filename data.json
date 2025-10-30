@@ -53,9 +53,9 @@
           "name": "电量汇总",
           "data": {
             "station": "储能SOC,储能SOC",
-            "jidian": "充电量,放电量",
-            "unit": "充电量,放电量",
-            "cmu": "充电量,放电量"
+            "jidian": "总充电量,总放电量",
+            "unit": "总充电量,总放电量",
+            "cmu": "总充电量,总放电量"
           },
           "class": "template",
           "html": "\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-code\"></i> 电量汇总</div>\n              <div class=\"box\">\n     <p>电站</p>\n       <input type=\"text\" df-station></input>\n          <p >集电线</p>\n       <input type=\"text\" df-jidian></input>\n         <p>储能单元</p>\n       <input type=\"text\" df-unit></input>\n    <p>CMU</p>\n       <input type=\"text\" df-cmu></input>\n        </div>\n            </div>\n            ",
